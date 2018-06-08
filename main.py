@@ -1,9 +1,9 @@
-
 import os
 import math
 import numpy as np
 import librosa.beat
 import librosa.feature
+import librosa.core
 import scipy.signal
 import librosa.display
 import scipy.signal
@@ -11,22 +11,23 @@ import util
 
 
 x, sr = util.load_audio('data/Pirates_of_the_Caribbean.wav')
-chromagram = librosa.feature.chroma_stft(y=x, sr=sr, norm=2, hop_length=128, base_c = False )
-
+#
+chromagram = librosa.feature.chroma_stft(y=x, sr=sr, norm=2, hop_length=util.hop_length, base_c = False )
 chroma = np.argmax( chromagram, axis=0)
 maxch = np.max(chromagram, axis=0)
-
+#
+pitches, magnitudes = librosa.core.piptrack(y=x, sr=sr, S=None, n_fft=2048, hop_length=util.hop_length, fmin=50.0, fmax=2500.0, threshold=0.6)
+index = np.argmax(magnitudes, axis = 0)
+#
 record = []
 current = None
 count = 0
 for i in range(len(chroma)):
     next_note = None
-    if maxch[i] <= 0.8:
-#        print(util.note[-1], end=' ')
+    if maxch[i] <= 0.8 or pitches[index[i], i] <= 0:
         next_note = util.note[-1]
     else:
-#        print(util.note[chroma[i]], end=' ')
-        next_note = util.note[chroma[i]]
+        next_note = librosa.core.hz_to_note(np.float16(pitches[index[i], i]))
     if current == next_note or current is None:
         current = next_note
         count += 1
@@ -36,5 +37,23 @@ for i in range(len(chroma)):
         count = 1
 record.append((current, count))
 
-for a in record:
+fpb = util.frequency_per_beat(x, sr)
+
+adjusted_record = []
+for i in range(len(record)):
+    (n, t) = record[i]
+    note = (t/fpb)*4
+    note = round(note)/4
+    if note > 0 :
+        if n == '-':
+            adjusted_record.append((n,'-1', note))
+        else:
+            adjusted_record.append((n[0],n[1],note))
+
+for a in adjusted_record:
     print(a, end=' ')
+
+print("\n")
+
+
+

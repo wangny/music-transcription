@@ -42,6 +42,8 @@ tone = [ #A based
 
 note = { -1:'-', 0 : 'A', 1:'A#', 2:'B', 3:'C', 4:'C#', 5:'D', 6:'D#', 7:'E', 8:'F', 9:'F#', 10:'G', 11:'G#' }
 
+hop_length=128
+
 def load_audio(filename):
     # You may use the audio I/O packages 
     fs, x = wav.read(filename)
@@ -50,3 +52,11 @@ def load_audio(filename):
     if x.ndim > 1: # I want to deal only with single-channel signal now
         x = np.mean(x, axis = 1)
     return x, fs
+
+def frequency_per_beat(x, sr):
+    t, b = librosa.beat.beat_track(y=x, sr=sr, onset_envelope=None, hop_length=hop_length, start_bpm=120.0, tightness=100, trim=True, bpm=None, units='frames')
+    t = math.ceil(t)
+    n_frame = math.floor(sr / hop_length)  #一秒有幾個frame
+    beat_length = 60 / t #拍子長度(sec)
+    fpb = math.floor(n_frame*beat_length)
+    return fpb
