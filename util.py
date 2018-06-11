@@ -43,8 +43,8 @@ tone = [ #A based
 
 note = { -1:'-', 0 : 'A', 1:'A#', 2:'B', 3:'C', 4:'C#', 5:'D', 6:'D#', 7:'E', 8:'F', 9:'F#', 10:'G', 11:'G#' }
 
-sbeat_templates = ['SW', 'SWW', 'SWSW', 'SWSWW', 'SWWSW', 'SWWSWW', 'SWSWSWW', 'SWWSWSW']
-wbeat_templates = ['WS', 'WSW', 'WSWS', 'WSWSW', 'WSWWS', 'WSWWSW', 'WSWSWSW', 'WSWWSWS']
+sbeat_templates = ['SWW', 'SWSW', 'SWSWW', 'SWWSW', 'SWWSWW', 'SWSWSWW', 'SWWSWSW']
+wbeat_templates = ['WSW', 'WSWS', 'WSWSW', 'WSWWS', 'WSWWSW', 'WSWSWSW', 'WSWWSWS']
 
 hop_length=128
 
@@ -119,7 +119,7 @@ def check_beats(start, sw_beat, templates):
     #
     prev_b, prev_score, s = 0.0, 0.0, []
     for i in scores:
-        if i[0]==2:
+        if i[0]==3:
             prev_b, prev_score = i[0], i[1]
         elif i[0]==prev_b:
             prev_score = prev_score+i[1]
@@ -153,9 +153,10 @@ def beats_per_section(fname):
     w_scores = check_beats(start, sw_beat, wbeat_templates)
     # average of 強起拍 & 弱起拍
     bps_scores = np.sum([s_scores, w_scores], axis=0)
+    #print(bps_scores)
     max_idx = np.argmax(bps_scores, axis=0)
-    #print(bps_scores[max_idx[1]][0])
-    return bps_scores[max_idx[1]][0]
+    #print(bps_scores[max_idx[1]][0]/2)
+    return bps_scores[max_idx[1]][0]/2
 
 
 
