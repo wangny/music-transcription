@@ -57,7 +57,7 @@ def main(filename):
             if n == '-':
                 adjusted_record.append((n,-1, note))
             else:
-                adjusted_record.append((n[0],int(n[1]),note))
+                adjusted_record.append((n[:-1],int(n[-1]),note))
 
     print("start output")
     #output
