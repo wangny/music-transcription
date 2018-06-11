@@ -11,6 +11,8 @@ import util
 
 
 x, sr = util.load_audio('data/Pirates_of_the_Caribbean.wav')
+# beats per section
+bps = util.beats_per_section('data/Pirates_of_the_Caribbean.wav')
 #
 chromagram = librosa.feature.chroma_stft(y=x, sr=sr, norm=2, hop_length=util.hop_length, base_c = False )
 chroma = np.argmax( chromagram, axis=0)
