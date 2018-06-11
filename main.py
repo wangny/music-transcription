@@ -19,6 +19,8 @@ def main(filename):
     # beats per section
     bps = util.beats_per_section(util.data_dir+filename)
     #
+    tempo = librosa.beat.tempo(y=x, sr=sr)
+    #
     chromagram = librosa.feature.chroma_stft(y=x, sr=sr, norm=2, hop_length=util.hop_length, base_c = False )
     chroma = np.argmax( chromagram, axis=0)
     maxch = np.max(chromagram, axis=0)
@@ -59,7 +61,7 @@ def main(filename):
 
     print("start output")
     #output
-    TabWrite.WriteTab(filename.split('.')[0], adjusted_record, int(bps))
+    TabWrite.WriteTab(filename.split('.')[0], adjusted_record, int(bps), tempo)
 
     print("done transcipt", filename)
 
