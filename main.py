@@ -17,7 +17,7 @@ def main(filename):
     print("start transcipt", filename)
     x, sr = util.load_audio(util.data_dir+filename)
     # beats per section
-    bps = util.beats_per_section(util.data_dir+filename)
+    bps = util.beats_per_bar(util.data_dir+filename)
     #
     tempo = librosa.beat.tempo(y=x, sr=sr)
     #
