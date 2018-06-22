@@ -10,6 +10,8 @@ import librosa.display
 import scipy.signal
 import madmom
 
+np.set_printoptions(threshold=np.nan)
+
 data_dir = 'data/'
 
 note = { -1:'-', 0 : 'A', 1:'A#', 2:'B', 3:'C', 4:'C#', 5:'D', 6:'D#', 7:'E', 8:'F', 9:'F#', 10:'G', 11:'G#' }
@@ -80,6 +82,15 @@ def strong_weak_beat(arr):
 def check_beats(start, sw_beat, templates):
     scores = []
     length = len(sw_beat)
+    '''
+    for i in templates:
+        l, score = len(i), 0.0
+        for cur in range(start, length-l):
+            if sw_beat[cur:cur+l]==i:
+                score = score+1
+        scores.append([l, score])
+    '''
+
     for i in templates:
         l, cur, score = len(i), start, 0.0
         while (cur+l)<=length:
@@ -107,6 +118,7 @@ def beats_per_section(fname):
     arr = proc(fname)
 
     sw_beat = strong_weak_beat(arr)
+    print(sw_beat)
 
     # Predict 強起拍
     length = len(sw_beat)
@@ -124,10 +136,45 @@ def beats_per_section(fname):
     w_scores = check_beats(start, sw_beat, wbeat_templates)
     # average of 強起拍 & 弱起拍
     bps_scores = np.sum([s_scores, w_scores], axis=0)
-    #print(bps_scores)
+    print(bps_scores)
     max_idx = np.argmax(bps_scores, axis=0)
-    #print(bps_scores[max_idx[1]][0]/2)
+    print(bps_scores[max_idx[1]][0]/2)
     return bps_scores[max_idx[1]][0]/2
 
 
+def beats_per_bar(fname):
+    fps = 100
+    '''
+    proc = madmom.features.beats.BeatTrackingProcessor(fps=fps)
+    act = madmom.features.beats.RNNBeatProcessor()(fname)
+    beats = proc(act)
+    '''
+
+    '''
+    proc = madmom.features.beats.RNNDownBeatProcessor()(fname)
+    beats = np.zeros((int(proc.shape[0]/100)+1, int(proc.shape[1])))
+    for i in range(beats.shape[0]):
+        beats[i] = np.sum(proc[i*100:i*100+99]) if i<beats.shape[0] else np.sum(proc[i*100:]) 
+    #print(beats)
+    '''
+    
+    for i in range(2, 8):
+        proc_ = madmom.features.beats.DBNDownBeatTrackingProcessor(beats_per_bar=i, fps=fps)
+        act = madmom.features.beats.RNNDownBeatProcessor()(fname)
+        p = proc_(act)
+        downbeats = np.transpose( p )[0]
+        pos = np.transpose( p )[1]
+
+        bar, ans = np.array([j for j in range(1, i+1)]), -1
+        if np.all(pos[0:i]==bar) and np.all(pos[-i:]==bar):
+            ans = i
+            break
+        else:
+            if pos[0]-pos[-1]==1:
+                ans = i
+                break
+
+    ans = 4 if ans==-1 else ans
+
+    return ans
 
