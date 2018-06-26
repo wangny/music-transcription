@@ -139,10 +139,9 @@ def beats_per_section(fname):
     print(bps_scores)
     max_idx = np.argmax(bps_scores, axis=0)
     print(bps_scores[max_idx[1]][0]/2)
-<<<<<<< HEAD
-    ss = 4
-    #return bps_scores[max_idx[1]][0]/2
-    return ss
+    #ss = 4
+    return bps_scores[max_idx[1]][0]/2
+    #return ss
 
 def beats_per_bar(fname, fps):
     #fps = 100
@@ -178,44 +177,4 @@ def beats_per_bar(fname, fps):
 
     ans = 4 if ans==-1 else ans
     return ans,pos
-=======
-    return bps_scores[max_idx[1]][0]/2
-
-
-def beats_per_bar(fname):
-    fps = 100
-    '''
-    proc = madmom.features.beats.BeatTrackingProcessor(fps=fps)
-    act = madmom.features.beats.RNNBeatProcessor()(fname)
-    beats = proc(act)
-    '''
-
-    '''
-    proc = madmom.features.beats.RNNDownBeatProcessor()(fname)
-    beats = np.zeros((int(proc.shape[0]/100)+1, int(proc.shape[1])))
-    for i in range(beats.shape[0]):
-        beats[i] = np.sum(proc[i*100:i*100+99]) if i<beats.shape[0] else np.sum(proc[i*100:]) 
-    #print(beats)
-    '''
-    
-    for i in range(2, 8):
-        proc_ = madmom.features.beats.DBNDownBeatTrackingProcessor(beats_per_bar=i, fps=fps)
-        act = madmom.features.beats.RNNDownBeatProcessor()(fname)
-        p = proc_(act)
-        downbeats = np.transpose( p )[0]
-        pos = np.transpose( p )[1]
-
-        bar, ans = np.array([j for j in range(1, i+1)]), -1
-        if np.all(pos[0:i]==bar) and np.all(pos[-i:]==bar):
-            ans = i
-            break
-        else:
-            if pos[0]-pos[-1]==1:
-                ans = i
-                break
-
-    ans = 4 if ans==-1 else ans
-
-    return ans
->>>>>>> 25e8e14f63141933fbaba52835fa3a98b7fd5ab4
 
