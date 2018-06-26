@@ -46,20 +46,30 @@ def main(filename):
             count = 1
     record.append((current, count))
 
-    fpb = util.frequency_per_beat(x, sr)
-
+    fpb, fps = util.frequency_per_beat(x, sr)
+    s1,s2 = util.beats_per_bar(util.data_dir+filename, fps)
+    print("start_frame")
+    print(s2)
     adjusted_record = []
+    flag = 0
+    if(s2[0]-5)>0:
+        adjusted_record.append(('-',-1,(s2[0]-5)))
     for i in range(len(record)):
         (n, t) = record[i]
         note = (t/fpb)*4
         note = round(note)/4
         if note > 0 :
             if n == '-':
-                adjusted_record.append((n,-1, note))
+                if(flag==1):
+                    adjusted_record.append((n,-1, note))
             else:
+                flag = 1
                 adjusted_record.append((n[:-1],int(n[-1]),note))
+                
 
     print("start output")
+    for i in range(len(adjusted_record)):
+        print(adjusted_record[i])
     #output
     TabWrite.WriteTab(filename.split('.')[0], adjusted_record, int(bps), tempo)
 
